@@ -162,6 +162,90 @@ function unsafe_discrete_voronoi!(::Val{:ref}, dist::Function, ::Type{T},
     return inds
 end
 
+# Best method (so far). Fast: takes ~ 0.014269 seconds on a 290×290 image and
+# yields same result as reference method
+function unsafe_discrete_voronoi!(::Val{:best}, dist, ::Type{T},
+                                  inds::AbstractArray{Int,N},
+                                  A::Union{AbstractArray{Bool,N},
+                                           AbstractVector{<:Coordinates{N}}}) where {T,N}
+    # Initialize the result with an invalid index to the nearest neighbor in
+    # the source.
+    unset = invalid_node_index(A) # to mark unset indices
+    fill!(inds, unset)
+    length(A) ≥ 1 || return inds # quick return, nothing else to do
+
+    # Instantiate `dmin` workspace to store min. distance to nearest neighbor.
+    dmin = fill!(similar(inds, T), typemax(T))
+
+    # Instantiate `age` workspace to avoid examining a node more than once.
+    stage = 0 # initial stage
+    age = fill!(similar(inds, typeof(stage)), stage)
+
+    # Create objects for fast linear <-> Cartesian coordinates conversion.
+    L = LinearIndices(inds)    # Cartesian -> linear index map
+    R = CartesianIndices(inds) # linear -> Cartesian index map
+    B = CartesianIndices(ntuple(i -> -1:1, Val(N))) # neighborhood
+
+    # Create queues and initialize secondary queue.
+    n = length(inds)
+    Q1 = sizehint!(Tuple{Int,Int}[], n) # primary queue for current nodes to examinate
+    Q2 = sizehint!(Tuple{Int,Int}[], n) # secondary queue for next nodes to examinate
+    @inbounds for i in eachindex(A)
+        local j
+        if A isa AbstractArray{Bool,N}
+            A[i] || continue
+            j = i # at this stage, the nearest node is the node itself
+        else
+            I = A[i] # coordinates of i-th node
+            J = nearest(R, I) # position in R that is the nearest to I
+            j = L[J] # linear index of j
+        end
+        push!(Q2, (i,j))
+    end
+
+    # Iteratively process queue of pair of nodes to examine.
+    @inbounds while !isempty(Q2)
+        # Swap the primary and secondary queues and empty the secondary one.
+        Q1, Q2 = Q2, Q1
+        empty!(Q2)
+        # Examine each node in the primary queue and enqueue their neighbors if
+        # they are part of the Voronoï domain of the current central node.
+        prev = unset
+        for (i,j) in Q1
+            if i != prev
+                # Central node has changed.
+                prev = i
+                stage += 1
+            end
+            I = if A isa AbstractArray{Bool,N}
+                R[i] # Cartesian index of i
+            else
+                A[i] # coordinates of i-th node
+            end
+            J = R[j] # Cartesian index of j
+            d = dist(I, J)
+            if d < dmin[j] || (d == dmin[j] && i < inds[j])
+                # Node i is the nearest neighbor of node j so far. Update
+                # diagram and push nodes of the neighborhood of j into the
+                # queue for later examination.
+                inds[j] = i
+                dmin[j] = d
+                @inbounds for K ∈ @range R ∩ (B + J) # for each node in the region
+                    k = L[K] # linear index of K
+                    if inds[k] != i && age[k] < stage
+                        # Node k is not already part of the Voronoï domain of
+                        # node i and has not yet been pushed in the queue at
+                        # this stage.
+                        age[k] = stage
+                        push!(Q2, (i,k))
+                    end
+                end
+            end
+        end
+    end
+    return inds
+end
+
 invalid_node_index(A) = firstindex(A) - 1
 
 """
@@ -221,5 +305,37 @@ typical_coordinates(::Type{<:CartesianIndex{N}}) where {N} =
     CartesianIndex{N}(ntuple(Returns(0), Val(N)))
 typical_coordinates(::Type{T}) where {N,T<:NTuple{N,Real}} =
     convert(T, ntuple(Returns(0), Val(N)))::T
+
+"""
+    DiscreteVoronoiDiagrams.nearest(T::Type, x) -> y
+
+yields the value `y` of type`T` that is the nearest to `x`. `T` can be an
+integer type and `x` a real value, or `T` can be `CartesianIndex{N}` and `x` a
+`N`-dimensional Cartesian index or a `N`-tuple of reals.
+
+"""
+nearest(::Type{T}, x::T) where {T<:Integer} = x
+nearest(::Type{T}, x::Integer) where {T<:Integer} = convert(T, x)::T
+nearest(::Type{T}, x::Real) where {T<:Integer} = round(T, x)::T
+nearest(::Type{T}, x::Irrational) where {T<:Integer} = round(T, float(x))::T
+
+nearest(::Type{CartesianIndex{N}}, x::CartesianIndex{N}) where {N} = x
+nearest(::Type{CartesianIndex{N}}, x::NTuple{N,Real}) where {N} =
+    CartesianIndex(map(nearest_int, x))
+
+"""
+    DiscreteVoronoiDiagrams.nearest(R::CartesianIndices, I) -> J
+
+yields the Cartesian index `J` inside the `N`-dimensional region `R` that is
+the nearest to `I`. `I` may be a `N`-dimensional Cartesian index or a `N`-tuple
+of reals.
+
+"""
+nearest(R::CartesianIndices{N}, I::Coordinates{N}) where {N} =
+    CartesianIndex(map(nearest_int, flatten(R), flatten(I)))
+
+nearest_int(x::Real) = nearest(Int, x)
+nearest_int(r::AbstractUnitRange{<:Integer}, x::Real) =
+    clamp(nearest_int(x), Int(first(r))::Int, Int(last(r))::Int)
 
 end

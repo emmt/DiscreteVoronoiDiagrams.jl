@@ -33,11 +33,11 @@ are two possibilities to specify the centers of the Voronoï domains:
   i = inds[j]
   ```
 
-  is the index of the node in `A` that is nearest to node `j` among all
-  nodes in `A`. The coordinates of the `i`-th node in `A` is simply
-  `A[i]` while the coordinates of the `j`-th node in the Voronoï diagram are
-  its Cartesian coordinates the array `inds` representing the diagram. If `A` is
-  empty, the result is an array filled with `firstindex(A) - 1`.
+  is the index of the node in `A` that is nearest to node `j` among all nodes
+  in `A`. The coordinates of the `i`-th node in `A` is simply `A[i]` while the
+  coordinates of the `j`-th node in the Voronoï diagram are its Cartesian
+  coordinates in the array `inds` representing the diagram. If `A` is empty,
+  the result is an array filled with `firstindex(A) - 1`.
 
 - To build a discrete Voronoï diagram for the nodes marked as `true` in a
   Boolean array `B`, call:
@@ -46,17 +46,17 @@ are two possibilities to specify the centers of the Voronoï domains:
   discrete_voronoi(B) -> inds
   ```
 
-  The result `inds` is an array of (linear) indices of the nearest marked nodes for each
-  node of `B`. In other words:
+  The result `inds` is an array of (linear) indices of the nearest marked nodes
+  for each node of `B`. In other words:
 
   ``` julia
   i = inds[j]
   ```
 
-  is the index of the marked node in `A` (such that `B[i] == true` holds) that
+  is the index of the marked node in `B` (such that `B[i] == true` holds) that
   is the nearest to node `j` among all marked nodes in `B`. If there are no
   marked nodes in `B`, the result is an array filled with `firstindex(B) - 1`.
 
 Keyword `dist` may be used to specify another distance than the (squared)
 Euclidean distance to build the diagram. In case of tie, the first in the
-lexicographic order of `A` is favored.
+lexicographic order of `A` (resp. `B`) is favored.

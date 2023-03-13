@@ -10,7 +10,8 @@ EasyRanges = "bd0ea217-0861-4661-bed1-3e8ea598dd25"
 julia = "1"
 
 [extras]
+Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
-test = ["Test"]
+test = ["Random", "Test"]

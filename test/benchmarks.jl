@@ -1,16 +1,13 @@
 module BenchmarkingDiscreteVoronoiDiagrams
 
-using EasyFITS, LocalFilters, DiscreteVoronoiDiagrams, BenchmarkTools
+using DiscreteVoronoiDiagrams, BenchmarkTools
 
-if false
-    f = openfits("~/data/Sphere/center_im.fits.gz");
-    x = read(f[1],:,:,1,1);
-    lmin, lmax = localextrema(x, 5);
-    msk = (lmax .> (lmin .+ maximum(lmax - lmin)/50)) .& (lmax .== x);
-    close(f)
-else
-    msk = readfits(Array{Bool,2}, joinpath(@__DIR__, "msk.fits.gz"))
-end
+filename = joinpath(@__DIR__, "msk.txt.gz")
+#decode(str::AbstractString) = map(c -> c != ' ', collect(str))
+decode(str::AbstractString) = [c != ' ' for c in str]
+encode(vec::AbstractVector{Bool}) = [(x ? 'x' : ' ') for x in vec]
+
+msk = reduce(hcat, [decode(str) for str in eachline(`gzip -dc $filename`; keep=false)])
 
 v1 = discrete_voronoi(msk; alg=:ref);
 v2 = discrete_voronoi(msk; alg=:best);

@@ -1,2 +1,7 @@
+*.bz2      binary
 *.fits     binary
-*.fits.gz  binary
+*.gz       binary
+*.pdf      binary
+*.xz       binary
+*.Z        binary
+*.zst      binary

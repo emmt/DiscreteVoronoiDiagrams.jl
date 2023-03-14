@@ -10,10 +10,14 @@ A discrete Voronoï diagram is an `N`-dimensional array, say `inds`, such that
 among a given list of nodes.
 
 Compared to
-[`DiscreteVoronoi`](https://github.com/jacobusmmsmit/DiscreteVoronoi.jl), this
-package implements only two strategies to build Voronoï diagrams (a slow
-*reference* one and a faster one) but can deal with any number of dimensions
-(not just 2) and nodes can be specified in two different ways (see below).
+[`DiscreteVoronoi`](https://github.com/jacobusmmsmit/DiscreteVoronoi.jl), the
+`DiscreteVoronoiDiagrams` package implements only two strategies to build
+Voronoï diagrams (a slow *reference* one and a faster one) but:
+
+- can deal with any number of dimensions (not just 2);
+- centers of the Voronoï domains can be specified in two different ways (see
+  below);
+- other distances than the default Euclidean distance may be used.
 
 The `DiscreteVoronoiDiagrams` exports two methods: `discrete_voronoi` and
 `discrete_voronoi!`, the latter being the in-place version of the former. There

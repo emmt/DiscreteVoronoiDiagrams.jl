@@ -7,6 +7,7 @@ version = "0.1.1"
 EasyRanges = "bd0ea217-0861-4661-bed1-3e8ea598dd25"
 
 [compat]
+EasyRanges = "0.1.1"
 julia = "1"
 
 [extras]

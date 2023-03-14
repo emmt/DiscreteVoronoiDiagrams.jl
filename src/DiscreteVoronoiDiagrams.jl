@@ -221,7 +221,7 @@ function unsafe_discrete_voronoi!(::Val{:best}, dist, ::Type{T},
                 A[i] # coordinates of i-th node
             end
             J = R[j] # Cartesian index of j
-            d = dist(I, J)
+            d = dist(flatten(I), flatten(J))::T
             if d < dmin[j] || (d == dmin[j] && i < inds[j])
                 # Node i is the nearest neighbor of node j so far. Update
                 # diagram and push nodes of the neighborhood of j into the

@@ -56,6 +56,7 @@ manhattan_distance(x::Tuple{Real}, y::Tuple{Real}) = manhattan_distance(x[1], y[
             @test Returns(π)() === π
             @test Returns(sqrt(2))("er"; x=33) === sqrt(2)
             @test Returns(false)(1,2) === false
+            @test Returns{Float32}(π)() === Float32(π)
         end
     end
     @testset "Building diagrams" begin

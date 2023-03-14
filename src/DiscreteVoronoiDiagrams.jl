@@ -143,7 +143,6 @@ function unsafe_discrete_voronoi!(::Val{:ref}, dist::Function, ::Type{T},
     # Build the Voronoï diagrame naively (but surely).
     R = CartesianIndices(inds)
     @inbounds for i in eachindex(A)
-        local I
         if A isa AbstractArray{Bool,N}
             A[i] || continue
             I = R[i] # Cartesian index of i
@@ -191,7 +190,6 @@ function unsafe_discrete_voronoi!(::Val{:best}, dist, ::Type{T},
     Q1 = sizehint!(Tuple{Int,Int}[], n) # primary queue for current nodes to examinate
     Q2 = sizehint!(Tuple{Int,Int}[], n) # secondary queue for next nodes to examinate
     @inbounds for i in eachindex(A)
-        local j
         if A isa AbstractArray{Bool,N}
             A[i] || continue
             j = i # at this stage, the nearest node is the node itself

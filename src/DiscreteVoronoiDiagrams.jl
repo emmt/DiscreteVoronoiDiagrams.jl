@@ -279,10 +279,17 @@ as `N`-dimensional coordinates, that is instances of
 squared_euclidean_distance(a::Real, b::Real) = (b - a)^2
 squared_euclidean_distance(a::Tuple{Real}, b::Tuple{Real}) =
     squared_euclidean_distance(a[1], b[1])
-squared_euclidean_distance(a::Coordinates{N}, b::Coordinates{N}) where {N} =
-    squared_euclidean_distance(flatten(a), flatten(b))
 @generated squared_euclidean_distance(a::NTuple{N,Real}, b::NTuple{N,Real}) where {N} =
     Expr(:call, :+, ntuple(i -> :(squared_euclidean_distance(a[$i], b[$i])), Val(N))...)
+
+# Deal with Cartesian indices. NOTE: To avoid stack overflow errors, each case
+# must be explicitely considered.
+squared_euclidean_distance(a::NTuple{N,Real}, b::CartesianIndex{N}) where {N} =
+    squared_euclidean_distance(a, flatten(b))
+squared_euclidean_distance(a::CartesianIndex{N}, b::NTuple{N,Real}) where {N} =
+    squared_euclidean_distance(flatten(a), b)
+squared_euclidean_distance(a::CartesianIndex{N}, b::CartesianIndex{N}) where {N} =
+    squared_euclidean_distance(flatten(a), flatten(b))
 
 function infer_distance_type(dist::Function,
                              A::Union{AbstractArray{Bool,N},

@@ -64,10 +64,12 @@ manhattan_distance(x::Tuple{Real}, y::Tuple{Real}) = manhattan_distance(x[1], y[
             v1 = discrete_voronoi(msk; alg=:ref)
             v2 = discrete_voronoi(msk; alg=:best)
             @test v2 == v1
+            @test discrete_voronoi!(v2, msk) == v1
             list = CartesianIndices(msk)[i]
             v3 = discrete_voronoi(dims, list; alg=:ref)
             v4 = discrete_voronoi(dims, list; alg=:best)
             @test v4 == v3
+            @test discrete_voronoi!(v4, list) == v3
             @test i[v3] == v1
             # Build Voronoï diagrams with Manahattan distance.
             v1 = discrete_voronoi(msk; dist=manhattan_distance, alg=:ref)

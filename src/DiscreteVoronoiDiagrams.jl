@@ -1,6 +1,6 @@
 module DiscreteVoronoiDiagrams
 
-export discrete_voronoi
+export discrete_voronoi, discrete_voronoi!
 
 using EasyRanges
 

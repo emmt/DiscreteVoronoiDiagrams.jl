@@ -14,14 +14,13 @@ Currently: `N`-dimensional Cartesian indices or `N`-tuple of reals.
 const Coordinates{N} = Union{CartesianIndex{N},NTuple{N,Real}}
 
 # Provide `Returns` for early versions of Julia.
-if !isdefined(Base, :Returns)
-    struct Returns{T}
-        val::T
-        Returns{T}(val) where {T} = new{T}(val)
-        Returns(val::T) where {T} = new{T}(val)
-    end
-    (obj::Returns)(args...; kwds...) = obj.val
+struct Returns_{V}
+    val::V
+    Returns_{V}(val) where {V} = new{V}(val)
+    Returns_(val::V) where {V} = new{V}(val)
 end
+(obj::Returns_)(args...; kwds...) = obj.val
+const Returns{V} = isdefined(Base, :Returns) ? Base.Returns{V} : Returns_{V}
 
 """
     discrete_voronoi(A::AbstractArray{Bool}; alg = :best) -> inds

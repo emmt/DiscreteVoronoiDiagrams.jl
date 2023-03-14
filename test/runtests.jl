@@ -41,8 +41,8 @@ manhattan_distance(x::Tuple{Real}, y::Tuple{Real}) = manhattan_distance(x[1], y[
         end
         let nearest = DiscreteVoronoiDiagrams.nearest
             @test nearest(Int, 3) === 3
-            @test nearest(Int, -π) === -3
-            @test nearest(Int, sqrt(2)) === 1
+            @test nearest(Int, π) === 3
+            @test nearest(Int, -sqrt(2)) === -1
             @test nearest(Int, -2//3) === -1
             @test nearest(CartesianIndex, CartesianIndex(-1,2,3)) === CartesianIndex(-1,2,3)
             @test nearest(CartesianIndex, (-π,3*sqrt(2),0x01)) === CartesianIndex(-3,4,1)
@@ -51,6 +51,11 @@ manhattan_distance(x::Tuple{Real}, y::Tuple{Real}) = manhattan_distance(x[1], y[
             R = CartesianIndices(((-1:3), Base.OneTo(4), (0:7)))
             @test nearest(R, CartesianIndex(-5,4,11)) === CartesianIndex(-1,4,7)
             @test nearest(R, (-π,3*sqrt(2),0x01)) === CartesianIndex(-1,4,1)
+        end
+        let Returns = DiscreteVoronoiDiagrams.Returns_
+            @test Returns(π)() === π
+            @test Returns(sqrt(2))("er"; x=33) === sqrt(2)
+            @test Returns(false)(1,2) === false
         end
     end
     @testset "Building diagrams" begin

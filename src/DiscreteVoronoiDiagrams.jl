@@ -317,6 +317,10 @@ nearest(::Type{T}, x::Integer) where {T<:Integer} = convert(T, x)::T
 nearest(::Type{T}, x::Real) where {T<:Integer} = round(T, x)::T
 nearest(::Type{T}, x::Irrational) where {T<:Integer} = round(T, float(x))::T
 
+nearest(::Type{CartesianIndex}, x::CartesianIndex) = x
+nearest(::Type{CartesianIndex}, x::Tuple{Vararg{Real}}) =
+    CartesianIndex(map(nearest_int, x))
+
 nearest(::Type{CartesianIndex{N}}, x::CartesianIndex{N}) where {N} = x
 nearest(::Type{CartesianIndex{N}}, x::NTuple{N,Real}) where {N} =
     CartesianIndex(map(nearest_int, x))

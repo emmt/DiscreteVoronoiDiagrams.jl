@@ -2,7 +2,7 @@ module DiscreteVoronoiDiagrams
 
 export discrete_voronoi, discrete_voronoi!
 
-using EasyRanges
+using AsType, EasyRanges
 
 """
     DiscreteVoronoiDiagrams.Coordinates{N}
@@ -254,8 +254,8 @@ an instance `x` or `CartesianIndices{N}`.
 
 """
 flatten(x::Tuple{Vararg{Real}}) = x
-flatten(x::CartesianIndex) = Tuple(x)
-flatten(x::CartesianIndices) = x.indices
+flatten(x::CartesianIndex) = as(Tuple, x)
+flatten(x::CartesianIndices) = as(Tuple, x)
 
 """
     DiscreteVoronoiDiagrams.euclidean_distance(a, b) -> d
@@ -308,7 +308,7 @@ typical_coordinates(A::AbstractVector{<:Coordinates{N}}) where {N} =
 typical_coordinates(::Type{<:CartesianIndex{N}}) where {N} =
     CartesianIndex{N}(ntuple(Returns(0), Val(N)))
 typical_coordinates(::Type{T}) where {N,T<:NTuple{N,Real}} =
-    convert(T, ntuple(Returns(0), Val(N)))::T
+    as(T, ntuple(Returns(0), Val(N)))
 
 """
     DiscreteVoronoiDiagrams.nearest(T::Type, x) -> y

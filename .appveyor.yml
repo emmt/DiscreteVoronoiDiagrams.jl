@@ -1,7 +1,7 @@
 # Documentation: https://github.com/JuliaCI/Appveyor.jl
 environment:
   matrix:
-    - julia_version: 1.0
+    - julia_version: 1.1
     - julia_version: 1.8
     - julia_version: nightly
 platform:
@@ -24,6 +24,9 @@ notifications:
 install:
   - ps: iex ((new-object net.webclient).DownloadString("https://raw.githubusercontent.com/JuliaCI/Appveyor.jl/version-1/bin/install.ps1"))
 build_script:
+  - C:\julia\bin\julia -e "import Pkg;
+                           Pkg.Registry.add(Pkg.RegistrySpec(\"General\"));
+                           Pkg.Registry.add(Pkg.RegistrySpec(url = \"https://github.com/emmt/EmmtRegistry\"));"
   - echo "%JL_BUILD_SCRIPT%"
   - C:\julia\bin\julia -e "%JL_BUILD_SCRIPT%"
 test_script:
